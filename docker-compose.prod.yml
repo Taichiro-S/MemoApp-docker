@@ -20,7 +20,8 @@ services:
     environment:
       - APP_DEBUG=false
       - APP_ENV=production
-      - APP_URL=${APP_URL:-api.aws-and-infra-ts.click}
+      - APP_URL=${APP_URL:-https://api.aws-and-infra-ts.click}
+      - FRONTEND_URL=${FRONTEND_URL:-https://www.aws-and-infra-ts.click}
       - LOG_CHANNEL=stderr
       - LOG_STDERR_FORMATTER=Monolog\Formatter\JsonFormatter
       - DB_CONNECTION=${DB_CONNECTION:-mysql}
