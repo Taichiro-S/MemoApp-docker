@@ -1,4 +1,9 @@
 /src_backend_laravel
+/src_backend_laravel-10
 /src_frontend_react-js
 /src_frontend_react-ts
 /AWS
+
+/.env
+/.env.development
+/.env.production

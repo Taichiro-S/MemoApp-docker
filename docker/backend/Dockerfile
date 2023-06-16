@@ -1,15 +1,11 @@
 FROM php:8.1-fpm-bullseye AS base
-# FROM php:8.1-apache AS base
 
 WORKDIR /workspace
 
-# timezone environment
 ENV TZ=UTC \
-  # locale
   LANG=en_US.UTF-8 \
   LANGUAGE=en_US:en \
   LC_ALL=en_US.UTF-8 \
-  # composer environment
   COMPOSER_ALLOW_SUPERUSER=1 \
   COMPOSER_HOME=/composer
 
@@ -34,31 +30,22 @@ RUN apt-get update \
     bcmath \
   && composer config -g process-timeout 3600 \
   && composer config -g repos.packagist composer https://packagist.org
-# Enable the Apache rewrite module
-#   && a2enmod rewrite
 
 FROM base AS development
 
 COPY ./docker/backend/php.development.ini /usr/local/etc/php/php.ini
-
-FROM development AS development-xdebug
 
 RUN pecl install xdebug && \
   docker-php-ext-enable xdebug
 
 COPY ./docker/backend/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
-FROM base AS deploy
+FROM base AS production
 
-COPY ./docker/backend/php.deploy.ini /usr/local/etc/php/php.ini
+COPY ./docker/backend/php.production.ini /usr/local/etc/php/php.ini
 
-# copy apache config    
-# COPY ./docker/backend/000-default.conf /etc/apache2/sites-enabled/000-default.conf
+COPY ./src_backend_laravel-10 /workspace/
 
-# copy source code
-COPY ./src_backend_laravel /workspace/
-
-# change workspace ownership to www-data
 RUN chown -R www-data:www-data /workspace
 
 RUN composer install -q -n --no-ansi --no-dev --no-scripts --no-progress --prefer-dist \
