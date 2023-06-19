@@ -55,4 +55,8 @@ RUN composer install -q -n --no-ansi --no-dev --no-scripts --no-progress --prefe
 
 CMD ["php-fpm"]
 
+COPY ./docker/backend/laravel_setup.sh /laravel_setup.sh
+RUN chmod +x /laravel_setup.sh
+CMD ["/laravel_setup.sh"]
+
 EXPOSE 9000
