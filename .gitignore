@@ -2,7 +2,7 @@
 /src_backend_laravel-10
 /src_frontend_react-js
 /src_frontend_react-ts
-/AWS
+/AWS/keys
 
 /.env
 /.env.development
