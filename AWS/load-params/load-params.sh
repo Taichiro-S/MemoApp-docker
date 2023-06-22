@@ -35,9 +35,17 @@ export EC2_NAME="${EC2_NAME}"
 export EC2_TYPE="${EC2_TYPE}"
 EOF
 
+# for PARAMS in $(echo ${SSM_PARAMETER_STORE} | /usr/local/bin/jq -r '.Parameters[] | .Name + "=" + .Value'); do
+#   echo "export ${PARAMS##*/}"
+# done >> "${SETENV_SHELL}"
+
 for PARAMS in $(echo ${SSM_PARAMETER_STORE} | /usr/local/bin/jq -r '.Parameters[] | .Name + "=" + .Value'); do
-  echo "export ${PARAMS##*/}"
+  NAME=${PARAMS%%=*}  # extract the part before the first '='
+  VALUE=${PARAMS#*=}  # extract the part after the first '='
+  LAST_NAME=${NAME##*/}  # remove the path before the parameter name
+  echo "export ${LAST_NAME}=${VALUE}"
 done >> "${SETENV_SHELL}"
+
 
 # Output environment file.
 mkdir -p ${APPENV_FILE%/*}
