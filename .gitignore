@@ -3,7 +3,7 @@
 /src_frontend_react-js
 /src_frontend_react-ts
 /AWS/keys
-
+/.DS_Store
 /.env
 /.env.development
 /.env.production
