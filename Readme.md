@@ -1,6 +1,7 @@
 # Memo App
 
-就職用ポートフォリオの１つとして作成した Web アプリケーションです。フロントエンドは [React](https://react.dev/), バックエンドは [Laravel](https://laravel.com/), デプロイ先として [AWS](https://aws.amazon.com/jp/) を使用しています。ローカル環境構築には、コンテナ型仮想化技術として [Docker](https://www.docker.com/) を使用しています。アプリケーション自体は現在は稼働していません。
+就職用ポートフォリオの１つとして作成した Web アプリケーションです。フロントエンドは [React](https://react.dev/), バックエンドは [Laravel](https://laravel.com/), デプロイ先として [AWS](https://aws.amazon.com/jp/) を使用しています。ローカル環境構築には、コンテナ型仮想化技術として [Docker](https://www.docker.com/) を使用しています。
+アプリケーション自体は現在は稼働していません。
 
 フロントエンドとバックエンドのソースコードは、それぞれ別のリポジトリで管理しています。使用技術やこだわった点について README に記載していますので、ご参照ください。
 
@@ -47,7 +48,30 @@
 
 #### フロントエンドとバックエンドの分離
 
+ネットの情報を見る限りでは、トレンドとしては分離する方向に進んでいるように見え、また環境構築の勉強も兼ねて、フロントエンドとバックエンドを分離して開発を進めてみました。
+
+フロントエンドとバックエンドを疎結合にすることで以下のようなメリットが得られます。
+
+- **スケーラビリティ**
+  例えばバックエンドが高負荷になった場合には、フロントエンドに影響を与えることなくバックエンドサーバのスケールアップが可能です。
+  </br>
+- **専門分化**
+  チーム開発では、フロントエンドとバックエンドの開発をそれぞれ専門のメンバーに分けることができ、それぞれ独立して開発を進めることができるため、開発効率の向上が見込めます。
+  </br>
+
+- **バックエンドの再利用性**
+  バックエンドをAPIサーバとすることで、webアプリだけでなく、iOSやAndoroidなど複数のプラットフォームで再利用することができます。
   
+一方で、以下のような弊害も発生します。
+
+- **インターフェース実装の必要性**
+  フロントエンドとバックエンドに分けてしまうことで、間をつなぐインターフェース部分の実装が追加で必要になります。
+  </br>
+
+- **UI を一から実装する必要性**  
+  Laravel や Ruby といったバックエンドのフレームワークには、ビューを提供するためのテンプレートエンジンや、ログイン、ダッシュボードといった基本的な画面を提供するものがありますが、これらを使用することができなくなり、UI を一から自分で構築する必要が出てきます。
+
+実際のプロジェクトでは、提供するサービスの要件、チームの規模、メンバーの専門性などによって判断することになりそうです。
 
 ### それぞれのコンテナの機能
 
@@ -91,18 +115,18 @@
 
 |サービス名 | アイコン | 機能など |
 | :---: | :---: | :--- |
-| ALB | <img width="40" alt="WAF" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/5b4e6b1e-d5c6-4163-867d-119adfccdfed"> |  |
-| EC2 | <img width="40" alt="EC2" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/a41a4012-23a4-4705-a980-869389ed6924"> |  |
-| Auto Scaling | <img width="40" alt="AutoScaling" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/3aa93a09-91b8-414b-8379-db38bc8560e8"> |  |
+| ALB | <img width="40" alt="WAF" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/5b4e6b1e-d5c6-4163-867d-119adfccdfed"> | リクエストを複数のAPサーバーに均等に分散することで、パフォーマンスを最適化し、ダウンタイムを防ぎます。 |
+| EC2 | <img width="40" alt="EC2" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/a41a4012-23a4-4705-a980-869389ed6924"> | プロセッサ、メモリ、ストレージなど幅広い選択肢を持つコンピューティングを提供するサービスです。 |
+| Auto Scaling | <img width="40" alt="AutoScaling" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/3aa93a09-91b8-414b-8379-db38bc8560e8"> | CloudWatchと連携し、アクセス数などによって自動的にスケーリングを行うことができます。 |
 
 #### その他
 
 |サービス名 | アイコン | 機能など |
 | :---: | :---: | :--- |
-| RDS | <img width="40" alt="RDS" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/563243c2-17ea-44c0-939b-fc435f1c0e45"> |  |
-| CloudWatch | <img width="40" alt="CloudWatch" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/5c0c62e5-b4b2-41d4-89db-0d6aeceba02b"> |  |
-| Systems Manager | <img width="40" alt="SystemsManager" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/46d3e818-2198-4150-8a91-0ec62c29cf6d"> |  |
-| Parameter Store | <img width="40" alt="parameterStore" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/7d0b12bc-a422-4c8a-b1ab-a650cf084413"> |  |
+| RDS | <img width="40" alt="RDS" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/563243c2-17ea-44c0-939b-fc435f1c0e45"> | RDBのセットアップ、運用、スケールを簡単に行うことができるマネージドサービスです。MySQL, PostgreSQL, MariaDB, Oracleなど多くのDBシステムに対応しています。 |
+| CloudWatch | <img width="40" alt="CloudWatch" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/5c0c62e5-b4b2-41d4-89db-0d6aeceba02b"> | AWSサービスのリソースをモニタリングするためのサービスです。AWS SNS と連携して通知を送信するよう設定したり、Auto Scalingと連携してインスタンスのスケーリングを行うことが可能です。|
+| Systems Manager | <img width="40" alt="SystemsManager" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/46d3e818-2198-4150-8a91-0ec62c29cf6d"> | 稼働している EC2 インスタンス等に踏み台サーバを経由せずに直接 SSH 接続できるサービスです。 |
+| Parameter Store | <img width="40" alt="parameterStore" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/7d0b12bc-a422-4c8a-b1ab-a650cf084413"> | 設定データや秘密情報を安全に管理するためのサービスです。セキュアな設定情報の提供と、誤った公開からの保護が可能になります。 |
 
 <a id="function"></a>
 
@@ -116,12 +140,14 @@
 
 ## 6. 基本設計
 
+### 画面遷移図
 
 画面遷移、各ページでのユーザ操作、処理内容、データの入出力等をまとめました。
 
-<p style='text-align:center; font-weight:bold; padding:100px; border:solid 2px; border-radius:5px; background-color:#fafafa;'>作成中...</p>
+作成中...
 
 ### ER 図
 
 [SqlDBM](https://sqldbm.com/Home/) というサイトを利用しました。
-<p style='text-align:center; font-weight:bold; padding:100px; border:solid 2px; border-radius:5px; background-color:#fafafa;'>作成中...</p>
+シンプルすぎて不要な気もしますが...
+<img width="837" alt="ER図" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/21a71da6-8c26-4850-a3d4-4e765a06fa28">
