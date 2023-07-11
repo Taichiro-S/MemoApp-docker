@@ -1,9 +1,10 @@
 # Memo App
 
 就職用ポートフォリオの１つとして作成した Web アプリケーションです。フロントエンドは [React](https://react.dev/), バックエンドは [Laravel](https://laravel.com/), デプロイ先として [AWS](https://aws.amazon.com/jp/) を使用しています。ローカル環境構築には、コンテナ型仮想化技術として [Docker](https://www.docker.com/) を使用しています。
-アプリケーション自体は現在は稼働していません。
+アプリケーション自体は現在は稼働していません。  
 
-フロントエンドとバックエンドのソースコードは、それぞれ別のリポジトリで管理しています。使用技術やこだわった点について README に記載していますので、ご参照ください。
+フロントエンドとバックエンドのソースコードは、それぞれ別のリポジトリで管理しています。  
+使用技術やこだわった点について README に記載していますので、ご参照ください。
 
 - [フロントエンド ( React )](https://github.com/Taichiro-S/MemoApp_frontend_react-ts)
 - [バックエンド ( Laravel )](https://github.com/Taichiro-S/MemoApp_backend_laravel-10)
@@ -44,13 +45,22 @@
 
 ![ローカル環境イメージ図](https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/219083b5-8803-4c68-89c6-a35c3a168372)
 
+### それぞれのコンテナの機能
+
+|コンテナ名 | 使用イメージ | 機能 |
+| :---: | :---: | :--- |
+| Web コンテナ | nginx:1.22 | <ul><li>`/` へのリクエストを Frontend コンテナ(`localhost:3000`)へ転送</li><li> `/sanctum/csrf-cookie` および `/api` へのリクエストを Backend コンテナ (`localhost:9000`) へ転送</li></ul> |
+| Frontend コンテナ | node:18-alpine | <ul><li>`create-react-app`により作成した Reactプロジェクトテンプレートを使用してUIを実装</li><li>Web コンテナに対して API リクエストを送信する ( Backend コンテナに転送される )</li></ul> |
+| Backend コンテナ | php:8.1-fpm-bullseye | <ul><li>フレームワークとして Laravel を使用し、REST API サーバとして使用</li><li>Webコンテナからの API リクエストを受け取り、Database コンテナからのデータ取得、保存を行う</li></ul> |
+| Database コンテナ | mysql/mysql-server:8.0 | <ul><li>MySQL を使用した RDB</li></ul> |
+
 ### こだわった点
 
 #### フロントエンドとバックエンドの分離
 
-ネットの情報を見る限りでは、トレンドとしては分離する方向に進んでいるように見え、また React, Laravel でコンテナを分けて環境構築をしている例が調べても見当たらなかったため、勉強も兼ねてフロントエンドとバックエンドを分離して開発を行いました。
+ネットの情報を見る限りではトレンドとしては分離する方向に進んでいるように見え、また React, Laravel でコンテナを分けて環境構築をしている例が見当たらなかったため、このような構成としました。
 
-フロントエンドとバックエンドを疎結合にすることで以下のようなメリットが得られます。
+フロントエンドとバックエンドを分離し疎結合にすることで以下のようなメリットが得られます。
 
 - **スケーラビリティ**
   例えばバックエンドが高負荷になった場合には、フロントエンドに影響を与えることなくバックエンドサーバのスケールアップが可能です。
@@ -73,14 +83,6 @@
 
 実際のプロジェクトでは、提供するサービスの要件、チームの規模、メンバーの専門性などによって判断することになりそうです。
 
-### それぞれのコンテナの機能
-
-|コンテナ名 | 使用イメージ | 機能 |
-| :---: | :---: | :--- |
-| Web コンテナ | nginx:1.22 | <ul><li>`/` へのリクエストを Frontend コンテナ(`localhost:3000`)へ転送</li><li> `/sanctum/csrf-cookie` および `/api` へのリクエストを Backend コンテナ (`localhost:9000`) へ転送</li></ul> |
-| Frontend コンテナ | node:18-alpine | <ul><li>`create-react-app`により作成した Reactプロジェクトテンプレートを使用してUIを実装</li><li>Web コンテナに対して API リクエストを送信する ( Backend コンテナに転送される )</li></ul> |
-| Backend コンテナ | php:8.1-fpm-bullseye | <ul><li>フレームワークとして Laravel を使用し、REST API サーバとして使用</li><li>Webコンテナからの API リクエストを受け取り、Database コンテナからのデータ取得、保存を行う</li></ul> |
-| Database コンテナ | mysql/mysql-server:8.0 | <ul><li>MySQL を使用した RDB</li></ul> |
 
 <a id="prod"></a>
 
@@ -88,16 +90,6 @@
 
 インフラ環境の構築には AWS を使用し、フロントエンドは S3 と CloudFront, バックエンドは EC2, データベースは RDS で構成しています。少々イレギュラーではありますが、ローカルで構築した Web コンテナと Backend コンテナを、全く同様に EC2 で動かし、REST API サーバとして使用しています（これができてしまうのが Docker のすごいところです ）。
 ![本番環境イメージ図](https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/e5b04444-aadb-4b98-9768-bde694c51a91)
-
-### こだわった点
-
-#### S3とCloudFrontによる静的サイトホスティング
-
-  ローカル環境ではフロントエンド部分を Docker コンテナの Node サーバで稼働させていましたが、本番環境ではビルドした静的ファイルをS3に配置し、CloudFrontで配信することにより高速でグローバルなコンテンツ配信を可能にしました。
-
-#### マルチAZによるAPサーバ、DBサーバの冗長化
-
-  複数の AZ ( Availability Zone ) にリソースを分散させることで高可用性と耐障害性を実現しました。一つのエリアで障害が発生した場合でも、アプリケーションを継続して稼働させることができます。
 
 ### 使用した主なサービス
 
@@ -128,6 +120,16 @@
 | Systems Manager | <img width="40" alt="SystemsManager" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/46d3e818-2198-4150-8a91-0ec62c29cf6d"> | 稼働している EC2 インスタンス等に踏み台サーバを経由せずに直接 SSH 接続できるサービスです。 |
 | Parameter Store | <img width="40" alt="parameterStore" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/7d0b12bc-a422-4c8a-b1ab-a650cf084413"> | 設定データや秘密情報を安全に管理するためのサービスです。セキュアな設定情報の提供と、誤った公開からの保護が可能になります。 |
 
+### こだわった点
+
+#### S3とCloudFrontによる静的サイトホスティング
+
+  ローカル環境ではフロントエンド部分を Docker コンテナの Node サーバで稼働させていましたが、本番環境ではビルドした静的ファイルをS3に配置し、CloudFrontで配信することにより高速でグローバルなコンテンツ配信を可能にしました。
+
+#### マルチAZによるAPサーバ、DBサーバの冗長化
+
+  複数の AZ ( Availability Zone ) にリソースを分散させることで高可用性と耐障害性を実現しました。一つのエリアで障害が発生した場合でも、アプリケーションを継続して稼働させることができます。
+
 <a id="function"></a>
 
 ## 5. 主な機能
@@ -142,14 +144,14 @@
 
 ### 画面遷移図
 
-画面遷移、各ページでのユーザ操作、処理内容、データの入出力等をまとめました。
-Figma で作成しています。
-詳しく見たい方は[こちら](https://www.figma.com/file/gdWQTWKlK2UcjiEtoJncv4/mamoapp-pages?type=whiteboard&node-id=1-108&t=B4blpyQG3F6TQJXO-4)
+画面遷移、各ページでのユーザ操作、処理内容、データの入出力等をまとめました。  
+Figma で作成しています。  
+詳しく見たい方は[こちら](https://www.figma.com/file/gdWQTWKlK2UcjiEtoJncv4/mamoapp-pages?type=whiteboard&node-id=1-108&t=B4blpyQG3F6TQJXO-4)  
 <img width="3280" alt="mamoapp-pages" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/37006148-5ac5-485e-807b-9b3888624c48">
 
 
 ### ER 図
 
-[SqlDBM](https://sqldbm.com/Home/) というサイトを利用しました。
+[SqlDBM](https://sqldbm.com/Home/) というサイトを利用しました。  
 シンプルすぎて不要な気もしますが...
 <img width="837" alt="ER図" src="https://github.com/Taichiro-S/MemoApp-docker/assets/119518065/21a71da6-8c26-4850-a3d4-4e765a06fa28">
